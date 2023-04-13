@@ -1,8 +1,8 @@
-# BTOAcousticPipelineVerificationTooldev
+# BTOAcousticPipelineVerificationTool
 
 An RShiny App to help with manual checking of short audio clips. A typical use case is where you have a folder of clips that the Acoustic Pipeline has suggested are of a certain species. This app can be used to display a spectrogram of a sound clip, allow the sound to be played, and then a decision can be made whether the identity is true or false resulting in the clip being moved to a true subfolder or a false subfolder. The app can be customised for more complex workflows, such as if multiple species are present, or to perform simple clip-level labelling.
 
-![Screenshot](https://github.com/BritishTrustForOrnithology/BTOAcousticPipelineVerificationApp_dev/blob/main/www/screengrab01.png)
+![Screenshot](https://github.com/BritishTrustForOrnithology/BTOAcousticPipelineVerificationApp/blob/main/www/screengrab01.png)
 
 ## Quick Start
 
