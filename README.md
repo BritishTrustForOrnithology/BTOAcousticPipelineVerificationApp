@@ -1,6 +1,6 @@
 # BTOAcousticPipelineVerificationTool
 
-An RShiny App to help with manual checking of short audio clips. A typical use case is where you have a folder of clips that the Acoustic Pipeline has suggested are of a certain species. This app can be used to display a spectrogram of a sound clip, allow the sound to be played, and then a decision can be made whether the identity is true or false resulting in the clip being moved to a true subfolder or a false subfolder. The app can be customised for more complex workflows, such as if multiple species are present, or to perform simple clip-level labelling.
+An RShiny App to help with manual checking of short audio clips. A typical use case is where you have a folder of clips that the Acoustic Pipeline has suggested are of a certain species. This app can be used to display a spectrogram of a sound clip, allow the sound to be played, and then a decision can be made whether the identity is true or false resulting in the clip being moved to a 'True' subfolder or a 'False' subfolder. The app can be customised for more complex workflows, such as if multiple species are present, or to perform simple clip-level labelling.
 
 ![Screenshot](https://github.com/BritishTrustForOrnithology/BTOAcousticPipelineVerificationApp/blob/main/www/screengrab01.png)
 
@@ -15,7 +15,7 @@ An RShiny App to help with manual checking of short audio clips. A typical use c
 
 You will need R installed on your computer. We have tested the app on R versions 3.6.1 and 4.2. You do not need to have RStudio installed but if you are familiar with it this may be an easier way to run the code.
 
-You will need the following R packages installed. If you are not familiar with installing R packages we have provided a configuration program (see below). You will only need to run this once. Required packages = shiny, shinyalert, shinyFiles, shinyjs, ini and tuneR.
+You will need the following R packages installed. If you are not familiar with installing R packages we have provided a configuration program (see below). You will only need to run this once. Required packages = shiny, shinyalert, shinyFiles, shinyjs, signal, scales, ini and audio.
 
 
 ## Installation
@@ -29,7 +29,9 @@ You will need the following R packages installed. If you are not familiar with i
 ## Usage
 
 * *Do not directly run 'app.R'.* Instead, with R/RStudio open, open the script file called 'launch_shiny_app.R'. Follow the instructions there, in particular noting the need to update the path_to_app line to say where you have saved the 'app.R' file. 
-* Running the 'launch_shiny_app.R' will open the app in a new browser window.
+* Running the 'launch_shiny_app.R' will open the app in a new browser window. 
+
+Note, if running on a computer with a small screen (e.g. a small laptop) you may need to reduce the browser zoom level so that the validation buttons are located to the right of the spectrogram as in the image above.
 
 
 ## Issues
@@ -37,9 +39,9 @@ You will need the following R packages installed. If you are not familiar with i
 If you have any problems with the app please add them on the Issues tab at the top of this screen.
 
 Simon Gillings
-March 2023
+April 2023
 
-![APlogo](https://github.com/BritishTrustForOrnithology/BTOAcousticPipelineVerificationApp_dev/blob/main/www/APlogo50px.png)
+![APlogo](https://github.com/BritishTrustForOrnithology/BTOAcousticPipelineVerificationApp/blob/main/www/APlogo50px.png)
 
 
 
