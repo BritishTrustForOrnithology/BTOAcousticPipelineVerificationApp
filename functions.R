@@ -5,16 +5,19 @@
 
 #' @description Move an audio file based on verification decision
 #' @detail This function can also be used in reverse to move a clip back using clip history
-#' @param file = current file name
 #' @param path_from = path where the file currently lives
 #' @param path_to = path where the file needs to move to
-audio_move <- function(file, path_from, path_to) {
+#' @param file_from = current file name
+#' @param file_to = destination file name (can be same as file_from)
+audio_move <- function(path_from, path_to, file_from, file_to=file_from) {
   if(dir.exists(path_to)==FALSE) dir.create(path_to)
-  from1 <- file.path(path_from, file)
-  to1 <- file.path(path_to, file)
+  from1 <- file.path(path_from, file_from)
+  to1 <- file.path(path_to, file_to)
   success <- file.rename(from1, to1)
   return(success)
 }
+
+
 
 
 #' @description Toggle enable/disable feature of navigation buttons
@@ -149,3 +152,16 @@ spec_fast <- function(signal, sr, window_size, overlap, theme, ylim) {
         xlab = "Time (s)",
         ylab = "Frequency (Hz)")
 }
+
+#' 
+#' #' Validate custom label
+#' #' @param label
+#' validate_label <- function(label) {
+#'   label <- toupper(label)
+#'   #split
+#'   label <-  'GE-F,RE-F'
+#' 
+#'   labs <- strsplit(label, ',')  
+#'   for(l in 1:length(labs))
+#' }
+

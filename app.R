@@ -21,9 +21,10 @@ settings <- parse_settings(read.ini('settings.ini'))
 settings$max_clip_duration <- 10
 
 #make empty history dataset
-history_start <- data.frame('file' = character(), 
-                      'origin' = character(),
-                      'destination' = character(), 
+history_start <- data.frame('path_from' = character(), 
+                      'path_to' = character(),
+                      'file_from' = character(), 
+                      'file_to' = character(), 
                       stringsAsFactors = FALSE)
 
 #get the drive letters
@@ -60,7 +61,10 @@ ui <- fluidPage(
                 are: True, False or Uncertain (but see below). Upon clicking one of these options the 
                 audio clip will be moved to a subfolder of that name. In this way a folder 
                 of audio provisionally identified as species X can be quickly and easily 
-                moved into True and False subfolders.'),
+                moved into True and False subfolders. Alternatively, one or more custom labels 
+                (e.g. species codes) can be given; this action will append the label (quoted, in 
+                square brackets)to the file name and move the file to the \'labelled\' folder.'),
+        tags$p('The history of actions is stored so it is possible to undo a file move/rename action.'),
         tags$p('The Settings tab allows various features of the app to be customised. In 
                particular the user can change the set of validation buttons to suit their 
                needs. For example, a user may wish to have buttons for individual species or
@@ -158,10 +162,27 @@ ui <- fluidPage(
                        uiOutput(outputId = 'player')
                      ),
                      div(id='checks',
-                       tags$h4("Select an option to move the clip", style="padding-top: 20px; color: #337ab7;"),
+                       tags$h4("Select an option to move the clip", style="padding-top: 20px; color: #337ab7; font-weight: bold;"),
                        tags$p("[Edit/add options in Settings panel]", style="font-size:12px; color: #337ab7;"),
                        style="text-align:center;",
                        uiOutput("validation_buttons")
+                     ),
+                     div(id='custom',
+                         style="margin: auto; padding-top: 10px; width: 280px",
+                         tags$div(
+                           style="float:left; color: #337ab7;",
+                           textInput(inputId = 'custom_label', 
+                                     label='Or add custom label(s)',
+                                     width = 200, placeholder = 'e.g. TO,NJ'
+                                     ),
+                         ),
+                         tags$div(
+                           style="float:left; padding-top: 20px; padding-left: 10px",
+                           actionButton(inputId = 'btn_custom',
+                                        label = "Add", 
+                                        style="background-color: #337ab7; color: #fff; margin-top:5px;margin-bottom:5px;"
+                                        )
+                         )
                      ),
                      div(id='undo',
                          style="text-align:center;",
@@ -171,8 +192,6 @@ ui <- fluidPage(
                      )
                    )
                   ) 
-                 
-                 
                )
              )
     ),
@@ -220,6 +239,7 @@ server <- function(input, output, session) {
     n_files = 0,
     file_counter = NULL,
     file_current = NULL,
+    label = NULL,
     history = history_start
     )
   
@@ -235,7 +255,11 @@ server <- function(input, output, session) {
      if(nrow(global$history) > 0) show('btn_undo')
      if(nrow(global$history) == 0) hide('btn_undo')
   })
-  
+
+  #observer to hold the current custom label  
+  observe({
+    global$label <- input$custom_label
+  })
 
   #observer for the audio folder selection
   observeEvent(eventExpr = {input$path_audio}, 
@@ -267,7 +291,7 @@ server <- function(input, output, session) {
   # show the main panel image and controls
   observeEvent(eventExpr = input$btn_scan, 
                handlerExpr = {
-                 files <- list.files(global$path_audio, pattern = "*.wav", full.names = FALSE)
+                 files <- list.files(global$path_audio, pattern = "*.wav|*.mp3|*.flac", full.names = FALSE)
                  
                  if(length(files)==0) {
                    #message('No such path for audio')
@@ -336,31 +360,119 @@ server <- function(input, output, session) {
     #last_item <- history[nrow(history),]
     last_item <- global$history[nrow(global$history),]
     #call the audio move function to move the clip back
-    moved_back <- audio_move(file = last_item$file, 
-                             path_from = last_item$destination, 
-                             path_to = last_item$origin)
+    moved_back <- audio_move(path_from = last_item$path_to,
+                             path_to = last_item$path_from, 
+                             file_from = last_item$file_to, 
+                             file_to = last_item$file_from 
+                               )
+    
     #if the file was successfully moved back:
     if(moved_back==TRUE) {
       #remove the last row from history
       #history <<- history[1:nrow(history)-1,]
       global$history <- global$history[1:nrow(global$history)-1,]
       #refresh file list and number of files
-      files <- list.files(global$path_audio, pattern = "*.wav", full.names = FALSE)      
+      files <- list.files(global$path_audio, pattern = "*.wav|*.mp3|*.flac", full.names = FALSE)      
       global$files_audio <- files 
       global$n_files <- length(files)
       #refresh current file
-      global$file_current <- last_item$file
+      global$file_current <- last_item$file_from
       #refresh file counter
-      global$file_counter <- which(files==last_item$file)
+      global$file_counter <- which(files==last_item$file_from)
       #update dropdown
       updateSelectInput(session, input = "file_picker",
                         choices = global$files_audio, selected=global$file_current)
-      #updaate nav buttons
+      #update nav buttons
       nav_button_toggles(global$n_files, global$file_counter)
     }
     if(moved_back==FALSE) stop("Error: Failed to undo file move")
     })
   
+  observeEvent(input$btn_custom, {
+    if(nchar(global$label)==0) {
+      shinyalert(title = "Error",
+                 text = "There is no label in the label input field",
+                 type = "error",
+                 callbackR = message('Callback: No label in input field')
+      )
+    }
+    if(nchar(global$label) > 0) {
+      label <- toupper(global$label)
+      print(label)
+      label <- gsub(" ","", label)
+      labs <- unlist(strsplit(label,',',fixed=TRUE))
+      labs2 <- list()
+      for(l in 1:length(labs)) {
+        labs2[l] <- paste0("\'",labs[l],"\'")
+      }
+      label <- paste0(labs2, collapse=',')
+      label <- paste0('-[',label,'].wav')
+      #make new file name
+      file_new <- gsub(".wav", label, global$file_current)
+      print(file_new)
+      #move the file and rename
+      renamed <- audio_move(path_from = global$path_audio, 
+                            path_to = file.path(global$path_audio, 'labelled'),
+                            file_from = global$file_current, 
+                            file_to = file_new
+                            )
+      
+      #if file successfully moved
+      if(renamed==TRUE) {
+        #add record to history
+        h1 <- data.frame('path_from' = global$path_audio,
+                         'path_to' = file.path(global$path_audio, 'labelled'),
+                         'file_from' = global$file_current,
+                         'file_to' = file_new, 
+                         stringsAsFactors = FALSE)
+        #history <<- rbind(history, h1) #<< to add to global history
+        global$history <- rbind(global$history, h1) #<< to add to global history
+        #print(history)
+        
+        #remove file from list
+        global$files_audio <- global$files_audio[global$files_audio != global$file_current]
+        #reduce number of files by one
+        global$n_files <- global$n_files - 1
+        
+        #update file_current if still files to check and not on last file in list
+        if(global$n_files > 0 & global$file_counter <= global$n_files) {
+          global$file_current <- global$files_audio[global$file_counter]
+          #update dropdown
+          updateSelectInput(session, input = "file_picker",
+                            choices = global$files_audio, selected=global$file_current)
+        }
+        #update file_current if still files to check and on last file in list
+        if(global$n_files > 0 & global$file_counter > global$n_files) {
+          #must reduce counter by one more to move it back a step to the last remaining file
+          global$file_counter <- global$file_counter - 1
+          global$file_current <- global$files_audio[global$file_counter]
+          #update dropdown
+          updateSelectInput(session, input = "file_picker",
+                            choices = global$files_audio, selected=global$file_current)
+        }
+        #no files left
+        if(global$n_files == 0) {
+          global$file_counter <- 0
+          global$file_current <- NULL
+          #update dropdown
+          updateSelectInput(session, input = "file_picker",
+                            choices = NULL, selected=NULL)
+          hide('file_count')
+          hide('file_current')
+          shinyalert(title = "Success",
+                     text = "All files in this folder have been verified",
+                     type = "success",
+                     callbackR = message('Callback: No more audio in this folder')
+          )
+        }
+        
+      
+      }
+      
+      
+    }
+    
+  })
   
   #' OUTPUTS ----------------------------------------------------------------------
   
@@ -382,12 +494,20 @@ server <- function(input, output, session) {
         # make sure to use <<- to update global variable obsList
         obsList[[btName]] <<- observeEvent(input[[btName]], {
           #cat("Button ", i, "pressed\n")
-          moved <- audio_move(file = global$file_current, 
-                        path_from = global$path_audio, 
-                        path_to = file.path(global$path_audio, val_but_list[i]))
+          moved <- audio_move(path_from = global$path_audio, 
+                              path_to = file.path(global$path_audio, val_but_list[i]),
+                              file_from = global$file_current, 
+                              file_to = global$file_current 
+                              )
           if(moved==TRUE) {
             #add record to history
-            h1 <- data.frame('file' = global$file_current, 'origin' = global$path_audio, 'destination' = file.path(global$path_audio, val_but_list[i]), stringsAsFactors = FALSE)
+            h1 <- data.frame('path_from' = global$path_audio,
+                             'path_to' = file.path(global$path_audio, val_but_list[i]),
+                             'file_from' = global$file_current,
+                             'file_to' = global$file_current, 
+                             stringsAsFactors = FALSE)
+            
+            
             #history <<- rbind(history, h1) #<< to add to global history
             global$history <- rbind(global$history, h1) #<< to add to global history
             #print(history)
