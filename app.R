@@ -71,7 +71,7 @@ ui <- fluidPage(
                call types.'),
         tags$p('The Spectrogram Settings button opens a panel of settings to customise the spectrogram image.
                Users can change colour themes, adjust the window length and overlap to better \'focus\' the image, 
-               and adjust the frequency axis range.'),
+               and adjust the frequency axis range. Note: stereo files are mixed to mono when creating the image.'),
         tags$p('Advanced Users: to preserve settings at startup, carefully modify the settings.ini file.'),
         tags$br(),
         tags$br(),
@@ -568,6 +568,11 @@ server <- function(input, output, session) {
       
       signal <- audio::load.wave(file1)
       sr <- signal$rate
+      
+      #deal with stereo file - dim is null if mono
+      if(!is.null(dim(signal))) {
+        signal <- apply(signal,2,mean)
+      }
       
       if(length(signal)/sr > settings$max_clip_duration) {
         shinyalert(title = 'Error: clip too long', 
