@@ -8,7 +8,7 @@ An RShiny App to help with manual checking of short audio clips. A typical use c
 
 1. Check Requirements
 2. Follow Installation instructions
-3. Do not directly run 'app.R'. Instead run 'launch_shiny_app.R', but only after completing steps 1 and 2 above
+3. Do not directly run 'ui.R' or 'server.R'. Instead run 'launch_shiny_app.R', but only after completing steps 1 and 2 above
 
 
 ## Requirements
@@ -28,7 +28,7 @@ You will need the following R packages installed. If you are not familiar with i
 
 ## Usage
 
-* *Do not directly run 'app.R'.* Instead, with R/RStudio open, open the script file called 'launch_shiny_app.R'. Follow the instructions there, in particular noting the need to update the path_to_app line to say where you have saved the 'app.R' file. 
+* *Do not directly run 'ui.R' or 'server.R'.* Instead, with R/RStudio open, open the script file called 'launch_shiny_app.R'. Follow the instructions there, in particular noting the need to update the path_to_app line to say where you have saved the files. 
 * Running the 'launch_shiny_app.R' will open the app in a new browser window. 
 
 Note, if running on a computer with a small screen (e.g. a small laptop) you may need to reduce the browser zoom level so that the validation buttons are located to the right of the spectrogram as in the image above.
@@ -37,6 +37,10 @@ Note, if running on a computer with a small screen (e.g. a small laptop) you may
 ## Issues
 
 If you have any problems with the app please add them on the Issues tab at the top of this screen.
+
+## Change Log
+
+* 10 June 2024 - UI: improve custom labelling functionality; add blinding options.
 
 Simon Gillings
 April 2023
