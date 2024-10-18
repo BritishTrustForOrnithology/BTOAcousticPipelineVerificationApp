@@ -11,6 +11,7 @@ require(shinyFiles)
 require(shinyalert)
 require(shinyjs)
 require(ini)
+require(tuneR)
 
 #read and parse the ini settings
 settings <- parse_settings(read.ini('settings.ini'))
