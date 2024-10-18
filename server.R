@@ -377,13 +377,34 @@ server <- function(input, output, session) {
     if(global$file_counter>0) {
       file1 <- file.path( global$path_audio, global$file_current )
       
-      signal <- audio::load.wave(file1)
-      sr <- signal$rate
+      #read the wav data using audio preferably, but if this fails with an odd incomplete file error, use tuneR
+      wavdata <- tryCatch(
+        {
+          # Try to load the wave file using audio::load.wave
+          audio::load.wave(file1)
+        },
+        error = function(e) {
+          # If an error occurs, try using tuneR::readWave
+          message("audio::load.wave failed, attempting tuneR::readWave...")
+          tuneR::readWave(file1)
+        }
+      )
       
-      #deal with stereo file - dim is null if mono
-      if(!is.null(dim(signal))) {
-        signal <- apply(signal,2,mean)
+      #unpack depending on which method is used
+      if(class(wavdata)=='Wave') {
+        #just use left channel for now
+        signal <- wavdata@left
+        sr <- wavdata@samp.rate
       }
+      if(class(wavdata)!='Wave') {
+        signal <- wavdata
+        sr <- signal$rate
+        #deal with stereo file - dim is null if mono
+        if(!is.null(dim(signal))) {
+          signal <- apply(signal,2,mean)
+        }
+      }
+      
 
       if(length(signal)/sr > settings$max_clip_duration) {
         shinyalert(title = 'Error: clip too long', 
