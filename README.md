@@ -15,7 +15,7 @@ An RShiny App to help with manual checking of short audio clips. A typical use c
 
 You will need R installed on your computer. We have tested the app on R versions 3.6.1 and 4.2. You do not need to have RStudio installed but if you are familiar with it this may be an easier way to run the code.
 
-You will need the following R packages installed. If you are not familiar with installing R packages we have provided a configuration program (see below). You will only need to run this once. Required packages = shiny, shinyalert, shinyFiles, shinyjs, signal, scales, ini and audio.
+You will need the following R packages installed. If you are not familiar with installing R packages we have provided a configuration program (see below). You will only need to run this once. Required packages = shiny, shinyalert, shinyFiles, shinyjs, signal, scales, ini, audio and tuneR.
 
 
 ## Installation
