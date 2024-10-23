@@ -4,14 +4,14 @@
 
 #imports
 require(audio)
+require(shinyjs)
+require(tuneR)
 require(signal)
 require(scales)
 require(shiny)
 require(shinyFiles)
 require(shinyalert)
-require(shinyjs)
 require(ini)
-require(tuneR)
 
 #read and parse the ini settings
 settings <- parse_settings(read.ini('settings.ini'))
@@ -24,16 +24,16 @@ volumes <- getVolumes()()
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-  hide('settings_panel')
-  hide('file_picker')
-  hide('btn_scan')
-  hide('spec')
-  hide('controls')
-  hide('checks')
-  hide('file_count')
-  hide('file_current')
-  hide('spec_settings')
-  hide('btn_undo')
+  shinyjs::hide('settings_panel')
+  shinyjs::hide('file_picker')
+  shinyjs::hide('btn_scan')
+  shinyjs::hide('spec')
+  shinyjs::hide('controls')
+  shinyjs::hide('checks')
+  shinyjs::hide('file_count')
+  shinyjs::hide('file_current')
+  shinyjs::hide('spec_settings')
+  shinyjs::hide('btn_undo')
   
   global <- reactiveValues(
     path_audio = 'Path not set',
@@ -54,14 +54,14 @@ server <- function(input, output, session) {
   
   #show/hide the filename
   observe({
-    if(input$show_filename == TRUE) show('file_current')
-    if(input$show_filename == FALSE) hide('file_current')
+    if(input$show_filename == TRUE) shinyjs::show('file_current')
+    if(input$show_filename == FALSE) shinyjs::hide('file_current')
   })
   
   #show the history button?
   observe({
-     if(nrow(global$history) > 0) show('btn_undo')
-     if(nrow(global$history) == 0) hide('btn_undo')
+     if(nrow(global$history) > 0) shinyjs::show('btn_undo')
+     if(nrow(global$history) == 0) shinyjs::hide('btn_undo')
   })
 
   #observer to hold the current custom label  
@@ -77,14 +77,14 @@ server <- function(input, output, session) {
                  global$file_counter <- NULL
                  global$file_current <- NULL
                  #and hide mainpanel stuff until file picked
-                 hide('spec')
-                 hide('controls')
-                 hide('checks')
-                 hide('file_count')
-                 hide('file_current')
-                 hide('file_picker')
+                 shinyjs::hide('spec')
+                 shinyjs::hide('controls')
+                 shinyjs::hide('checks')
+                 shinyjs::hide('file_count')
+                 shinyjs::hide('file_current')
+                 shinyjs::hide('file_picker')
                  global$path_audio <- parseDirPath(volumes, input$path_audio)
-                 show('btn_scan')
+                 shinyjs::show('btn_scan')
                  } )
   
   
@@ -127,13 +127,13 @@ server <- function(input, output, session) {
                    global$history <- history_start
                    
                    
-                   show('file_picker')
-                   show('spec')
-                   show('controls')
-                   show('checks')
-                   show('file_count')
-                   if(input$show_filename==TRUE) show('file_current')
-                   show('spec_settings')
+                   shinyjs::show('file_picker')
+                   shinyjs::show('spec')
+                   shinyjs::show('controls')
+                   shinyjs::show('checks')
+                   shinyjs::show('file_count')
+                   if(input$show_filename==TRUE) shinyjs::show('file_current')
+                   shinyjs::show('spec_settings')
                  }
                })
   
@@ -271,8 +271,8 @@ server <- function(input, output, session) {
           global$file_current <- NULL
           #update dropdown
           if(file_dropdown) updateSelectInput(session, input = "file_picker", choices = NULL, selected=NULL)
-          hide('file_count')
-          hide('file_current')
+          shinyjs::hide('file_count')
+          shinyjs::hide('file_current')
           shinyalert(title = "Success",
                      text = "All files in this folder have been verified",
                      type = "success",
@@ -352,8 +352,8 @@ server <- function(input, output, session) {
               global$file_current <- NULL
               #update dropdown
               if(file_dropdown) updateSelectInput(session, input = "file_picker", choices = NULL, selected=NULL)
-              hide('file_count')
-              hide('file_current')
+              shinyjs::hide('file_count')
+              shinyjs::hide('file_current')
               shinyalert(title = "Success",
                          text = "All files in this folder have been verified",
                          type = "success",
