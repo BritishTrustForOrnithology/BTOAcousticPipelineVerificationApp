@@ -7,8 +7,5 @@ authors:
 title: "BTO Acoustic Pipeline Verification App"
 type: software
 version: 2.0
-identifiers:
-  - type: url
-    value: >-
-      https://github.com/BritishTrustForOrnithology/BTOAcousticPipelineVerificationApp
+url: https://github.com/BritishTrustForOrnithology/BTOAcousticPipelineVerificationApp
 date-released: 2024-10-06
